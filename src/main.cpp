@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <complex>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -45,6 +47,22 @@ long long readInteger(const std::string& prompt) {
         std::cout << "That doesn't look like an integer. ";
         clearInput();
     }
+}
+
+double readDouble(const std::string& prompt) {
+    double value;
+    while (true) {
+        std::cout << prompt;
+        if (std::cin >> value) {
+            return value;
+        }
+        std::cout << "That doesn't look like a valid number. ";
+        clearInput();
+    }
+}
+
+bool isApproximatelyZero(double value, double epsilon = 1e-9) {
+    return std::abs(value) <= epsilon;
 }
 
 std::string trim(const std::string& text) {
@@ -160,6 +178,43 @@ char normalizeOperator(char ch) {
     return ch;
 }
 
+double factorialOf(double operand) {
+    double rounded = std::round(operand);
+    if (!isApproximatelyZero(operand - rounded)) {
+        throw std::invalid_argument("Factorial is only defined for integers.");
+    }
+
+    long long n = static_cast<long long>(rounded);
+    if (n < 0) {
+        throw std::invalid_argument("Factorial is not defined for negative numbers.");
+    }
+    if (n > 170) {
+        throw std::overflow_error("Factorial result would overflow double precision.");
+    }
+
+    long double result = 1.0L;
+    for (long long i = 2; i <= n; ++i) {
+        result *= static_cast<long double>(i);
+    }
+    return static_cast<double>(result);
+}
+
+double applyFunction(const std::string& functionName, double value) {
+    if (functionName == "sin") {
+        return std::sin(value);
+    }
+    if (functionName == "cos") {
+        return std::cos(value);
+    }
+    if (functionName == "log") {
+        if (value <= 0.0) {
+            throw std::domain_error("Logarithm undefined for non-positive values.");
+        }
+        return std::log(value);
+    }
+    throw std::invalid_argument("Unknown function: " + functionName);
+}
+
 int chooseBase(const std::string& label) {
     while (true) {
         std::cout << label << '\n';
@@ -185,9 +240,10 @@ int chooseBase(const std::string& label) {
 }
 
 struct Token {
-    enum class Type { Number, Operator, LeftParen, RightParen } type;
+    enum class Type { Number, Operator, Function, LeftParen, RightParen } type;
     double value{};
     char op{};
+    std::string func;
 };
 
 double parseNumberToken(const std::string& expr, std::size_t& index) {
@@ -229,13 +285,15 @@ std::vector<Token> tokenizeExpression(const std::string& expression) {
 
         if (expectValue) {
             if (c == '(') {
-                tokens.push_back({Token::Type::LeftParen});
+                tokens.push_back({Token::Type::LeftParen, 0.0, 0, ""});
                 ++i;
                 continue;
             }
 
             int sign = 1;
+            bool sawUnarySign = false;
             if (c == '+' || c == '-') {
+                sawUnarySign = true;
                 sign = (c == '-') ? -1 : 1;
                 ++i;
                 while (i < expression.size() &&
@@ -247,8 +305,10 @@ std::vector<Token> tokenizeExpression(const std::string& expression) {
                 }
                 c = expression[i];
                 if (c == '(') {
-                    tokens.push_back({Token::Type::Number, 0.0});
-                    tokens.push_back({Token::Type::Operator, 0.0, static_cast<char>((sign == 1) ? '+' : '-')});
+                    if (sign == -1) {
+                        tokens.push_back({Token::Type::Number, 0.0, 0, ""});
+                        tokens.push_back({Token::Type::Operator, 0.0, '-', ""});
+                    }
                     expectValue = true;
                     continue;
                 }
@@ -258,22 +318,61 @@ std::vector<Token> tokenizeExpression(const std::string& expression) {
 
             if (std::isdigit(static_cast<unsigned char>(c)) || c == '.') {
                 double number = parseNumberToken(expression, i);
-                tokens.push_back({Token::Type::Number, sign * number});
+                tokens.push_back({Token::Type::Number, sign * number, 0, ""});
                 expectValue = false;
+                continue;
+            }
+
+            if (std::isalpha(static_cast<unsigned char>(c))) {
+                std::size_t start = i;
+                while (i < expression.size() &&
+                       std::isalpha(static_cast<unsigned char>(expression[i]))) {
+                    ++i;
+                }
+                std::string functionName = expression.substr(start, i - start);
+                std::string lowered = functionName;
+                std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
+                    return static_cast<char>(std::tolower(ch));
+                });
+                if (lowered != "sin" && lowered != "cos" && lowered != "log") {
+                    throw std::invalid_argument("Unknown function: " + functionName);
+                }
+                if (sawUnarySign && sign == -1) {
+                    tokens.push_back({Token::Type::Number, 0.0, 0, ""});
+                    tokens.push_back({Token::Type::Operator, 0.0, '-', ""});
+                }
+                tokens.push_back({Token::Type::Function, 0.0, 0, lowered});
+
+                std::size_t lookahead = i;
+                while (lookahead < expression.size() &&
+                       std::isspace(static_cast<unsigned char>(expression[lookahead]))) {
+                    ++lookahead;
+                }
+                if (lookahead >= expression.size() || expression[lookahead] != '(') {
+                    throw std::invalid_argument("Function '" + functionName +
+                                                "' must be followed by parentheses.");
+                }
+                i = lookahead;
                 continue;
             }
 
             throw std::invalid_argument("Expected a number or '(' in the expression.");
         } else {
             if (c == ')') {
-                tokens.push_back({Token::Type::RightParen});
+                tokens.push_back({Token::Type::RightParen, 0.0, 0, ""});
+                ++i;
+                continue;
+            }
+
+            if (c == '!') {
+                tokens.push_back({Token::Type::Operator, 0.0, '!', ""});
                 ++i;
                 continue;
             }
 
             if (isOperatorChar(c)) {
                 tokens.push_back(
-                    {Token::Type::Operator, 0.0, normalizeOperator(c)});
+                    {Token::Type::Operator, 0.0, normalizeOperator(c), ""});
                 ++i;
                 expectValue = true;
                 continue;
@@ -297,6 +396,9 @@ int precedence(char op) {
     if (op == '*' || op == '/') {
         return 2;
     }
+    if (op == '!') {
+        return 3;
+    }
     throw std::invalid_argument("Unknown operator encountered.");
 }
 
@@ -308,6 +410,9 @@ std::vector<Token> toRpn(const std::vector<Token>& tokens) {
         switch (token.type) {
             case Token::Type::Number:
                 output.push_back(token);
+                break;
+            case Token::Type::Function:
+                stack.push_back(token);
                 break;
             case Token::Type::Operator:
                 while (!stack.empty() && stack.back().type == Token::Type::Operator &&
@@ -329,6 +434,10 @@ std::vector<Token> toRpn(const std::vector<Token>& tokens) {
                     throw std::invalid_argument("Mismatched parentheses in expression.");
                 }
                 stack.pop_back();
+                if (!stack.empty() && stack.back().type == Token::Type::Function) {
+                    output.push_back(stack.back());
+                    stack.pop_back();
+                }
                 break;
         }
     }
@@ -351,37 +460,61 @@ double evaluateExpression(const std::string& expression) {
     std::vector<double> stack;
 
     for (const Token& token : rpn) {
-        if (token.type == Token::Type::Number) {
-            stack.push_back(token.value);
-        } else if (token.type == Token::Type::Operator) {
-            if (stack.size() < 2) {
-                throw std::invalid_argument("Invalid expression: insufficient operands.");
-            }
-            double rhs = stack.back();
-            stack.pop_back();
-            double lhs = stack.back();
-            stack.pop_back();
-            double result = 0.0;
-            switch (token.op) {
-                case '+':
-                    result = lhs + rhs;
-                    break;
-                case '-':
-                    result = lhs - rhs;
-                    break;
-                case '*':
-                    result = lhs * rhs;
-                    break;
-                case '/':
-                    if (rhs == 0.0) {
-                        throw std::runtime_error("Division by zero in expression.");
+        switch (token.type) {
+            case Token::Type::Number:
+                stack.push_back(token.value);
+                break;
+            case Token::Type::Operator:
+                if (token.op == '!') {
+                    if (stack.empty()) {
+                        throw std::invalid_argument("Factorial operator missing operand.");
                     }
-                    result = lhs / rhs;
+                    double value = stack.back();
+                    stack.back() = factorialOf(value);
                     break;
-                default:
-                    throw std::invalid_argument("Unknown operator in expression.");
-            }
-            stack.push_back(result);
+                }
+                if (stack.size() < 2) {
+                    throw std::invalid_argument("Invalid expression: insufficient operands.");
+                }
+                {
+                    double rhs = stack.back();
+                    stack.pop_back();
+                    double lhs = stack.back();
+                    stack.pop_back();
+                    double result = 0.0;
+                    switch (token.op) {
+                        case '+':
+                            result = lhs + rhs;
+                            break;
+                        case '-':
+                            result = lhs - rhs;
+                            break;
+                        case '*':
+                            result = lhs * rhs;
+                            break;
+                        case '/':
+                            if (rhs == 0.0) {
+                                throw std::runtime_error("Division by zero in expression.");
+                            }
+                            result = lhs / rhs;
+                            break;
+                        default:
+                            throw std::invalid_argument("Unknown operator in expression.");
+                    }
+                    stack.push_back(result);
+                }
+                break;
+            case Token::Type::Function:
+                if (stack.empty()) {
+                    throw std::invalid_argument("Function missing operand.");
+                }
+                {
+                    double argument = stack.back();
+                    stack.back() = applyFunction(token.func, argument);
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -412,6 +545,100 @@ bool askToContinue(const std::string& prompt) {
             return false;
         }
         std::cout << "Please answer with 'y' or 'n'.\n";
+    }
+}
+
+void solveLinearEquation(double a, double b) {
+    if (isApproximatelyZero(a)) {
+        if (isApproximatelyZero(b)) {
+            std::cout << "Every real number is a solution.\n";
+        } else {
+            std::cout << "No solution exists for this equation.\n";
+        }
+        return;
+    }
+
+    double result = -b / a;
+    std::cout << "Solution: x = " << result << '\n';
+}
+
+void solveQuadraticEquation(double a, double b, double c) {
+    if (isApproximatelyZero(a)) {
+        std::cout << "Coefficient 'a' is zero; falling back to a linear equation.\n";
+        solveLinearEquation(b, c);
+        return;
+    }
+
+    double discriminant = b * b - 4.0 * a * c;
+    constexpr double epsilon = 1e-9;
+
+    if (discriminant > epsilon) {
+        double sqrtDisc = std::sqrt(discriminant);
+        double denom = 2.0 * a;
+        std::cout << "Two real solutions:\n";
+        std::cout << " x1 = " << (-b + sqrtDisc) / denom << '\n';
+        std::cout << " x2 = " << (-b - sqrtDisc) / denom << '\n';
+    } else if (isApproximatelyZero(discriminant, epsilon)) {
+        double root = -b / (2.0 * a);
+        std::cout << "One real solution (double root): x = " << root << '\n';
+    } else {
+        std::complex<double> sqrtDisc = std::sqrt(std::complex<double>(discriminant, 0.0));
+        std::complex<double> denom(2.0 * a, 0.0);
+        std::complex<double> x1 = (-b + sqrtDisc) / denom;
+        std::complex<double> x2 = (-b - sqrtDisc) / denom;
+
+        auto printComplex = [](const std::complex<double>& value) {
+            double realPart = value.real();
+            double imagPart = value.imag();
+            std::cout << realPart;
+            if (!isApproximatelyZero(imagPart)) {
+                if (imagPart >= 0) {
+                    std::cout << " + " << imagPart << "i";
+                } else {
+                    std::cout << " - " << std::abs(imagPart) << "i";
+                }
+            }
+        };
+
+        std::cout << "Two complex solutions:\n x1 = ";
+        printComplex(x1);
+        std::cout << "\n x2 = ";
+        printComplex(x2);
+        std::cout << '\n';
+    }
+}
+
+void handleEquations() {
+    while (true) {
+        std::cout << "\n--- Equation Solver ---\n";
+        std::cout << " 1) Linear (a * x + b = 0)\n";
+        std::cout << " 2) Quadratic (a * x^2 + b * x + c = 0)\n";
+        std::cout << " 0) Back\n";
+
+        int choice = readMenuChoice(0, 2);
+        switch (choice) {
+            case 0:
+                return;
+            case 1: {
+                double a = readDouble("Enter coefficient a: ");
+                double b = readDouble("Enter coefficient b: ");
+                solveLinearEquation(a, b);
+                break;
+            }
+            case 2: {
+                double a = readDouble("Enter coefficient a: ");
+                double b = readDouble("Enter coefficient b: ");
+                double c = readDouble("Enter coefficient c: ");
+                solveQuadraticEquation(a, b, c);
+                break;
+            }
+            default:
+                break;
+        }
+
+        if (!askToContinue("Would you like to solve another equation? (y/n): ")) {
+            return;
+        }
     }
 }
 
@@ -510,9 +737,11 @@ int main() {
         std::cout << " 1) Basic operations\n";
         std::cout << " 2) Numeral system conversion\n";
         std::cout << " 3) Divisor finder\n";
+        std::cout << " 4) Equation solver\n";
+        std::cout << " 5) Report a bug\n";
         std::cout << " 0) Exit\n";
 
-        int choice = readMenuChoice(0, 3);
+        int choice = readMenuChoice(0, 5);
         switch (choice) {
             case 1:
                 handleArithmetic();
@@ -522,6 +751,14 @@ int main() {
                 break;
             case 3:
                 handleDivisors();
+                break;
+            case 4:
+                handleEquations();
+                break;
+            case 5:
+                std::cout << "Opened a browser to report a bug, if don't see it, please visit:\n";
+                std::system("xdg-open https://github.com/Benedek553/cli-calculator/issues");
+                std::cout << "https://github.com/Benedek553/cli-calculator/issues\n";
                 break;
             case 0:
                 std::cout << "Goodbye!\n";
