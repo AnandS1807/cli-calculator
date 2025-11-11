@@ -41,5 +41,9 @@ cmake --build build --config Release
 ## Helpful tips
 
 - In the calculator menu, type `back` to return to the algebraic input mode.
+
+## Contribution
+
+Feel free to submit issues or pull requests!
 - The `x` and `:` symbols are interpreted as multiplication and division, respectively, to match common Hungarian input conventions.
 - The number-base menu accepts numbers prefixed with `0b` or `0x`.
