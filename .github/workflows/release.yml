@@ -45,19 +45,12 @@ jobs:
           draft: true
           tag_name: v${{ github.run_number }}
           name: "CLI Calculator build #${{ github.run_number }}"
+          files: cli-calculator-build.zip
           body: |
             ⚙️ Automated draft release for CLI Calculator.
 
             - Build type: Release
             - Triggered by: ${{ github.actor }}
             - Commit: ${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload ZIP to draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          files: cli-calculator-build.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
