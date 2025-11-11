@@ -1,4 +1,4 @@
-# c-tools
+# cli-calculator
 
 Simple C++ project providing two command-line tools:
 
@@ -43,3 +43,8 @@ cmake --build build --config Release
 - In the calculator menu, type `back` to return to the algebraic input mode.
 - The `x` and `:` symbols are interpreted as multiplication and division, respectively, to match common Hungarian input conventions.
 - The number-base menu accepts numbers prefixed with `0b` or `0x`.
+
+
+## Contribution
+
+Feel free to submit issues or pull requests!

@@ -1,0 +1,86 @@
+name: 🐛 Bug Report
+description: Report a bug in the CLI Calculator project
+labels: ["bug", "triage"]
+assignees:
+  - Benedek553
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug in **CLI Calculator**!  
+        Please fill out the following fields carefully so we can reproduce and fix the issue quickly.
+
+  - type: input
+    id: title
+    attributes:
+      label: 🏷️ Issue title
+      description: Provide a short, clear title for the bug.
+      placeholder: e.g. Division by zero causes segmentation fault
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 🔢 Application version
+      description: Enter the version or commit hash where the issue occurred.
+      placeholder: v1.2.3 or commit hash
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: 💻 Operating System
+      description: On which OS did the issue occur?
+      placeholder: e.g. Ubuntu 25.04, Fedora 41, macOS 15, Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 🧩 Bug description
+      description: Describe the bug clearly and concisely.
+      placeholder: Explain what happened and what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: 🧪 Steps to reproduce
+      description: List the exact steps to reproduce the issue.
+      placeholder: |
+        1. Run the program
+        2. Enter expression: 2 / 0
+        3. Observe crash message
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📜 Console output or logs
+      description: Paste any relevant terminal output or stack trace.
+      render: shell
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: ⚙️ Build environment
+      description: Provide compiler and build environment details.
+      placeholder: |
+        Compiler: g++ 15.2.0
+        Build type: Release
+        Command: `cmake .. && make`
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: ✅ Confirmations
+      options:
+        - label: I have searched for similar issues before opening thi
