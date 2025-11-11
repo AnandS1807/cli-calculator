@@ -7,7 +7,7 @@ set(DIVISOR_SOURCES
 )
 
 add_executable(divisors ${DIVISOR_SOURCES})
-add_executable(calculator init.cpp divisors_lib.cpp)
+add_executable(calculator main.cpp divisors_lib.cpp)
 
 target_include_directories(divisors PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(calculator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
