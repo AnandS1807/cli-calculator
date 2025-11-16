@@ -212,6 +212,43 @@ double applyFunction(const std::string& functionName, double value) {
         }
         return std::log(value);
     }
+    if (functionName == "tan") {
+        return std::tan(value);
+    }
+    if (functionName == "sqrt") {
+        if (value < 0.0) {
+            throw std::domain_error("Square root undefined for negative values.");
+        }
+        return std::sqrt(value);
+    }
+    if (functionName == "exp") {
+        return std::exp(value);
+    }
+    if (functionName == "cot") {
+        double tanValue = std::tan(value);
+        if (isApproximatelyZero(tanValue)) {
+            throw std::domain_error("Cotangent undefined for this value.");
+        }
+        return 1.0 / tanValue;
+    }
+    if (functionName == "asin") {
+        if (value < -1.0 || value > 1.0) {
+            throw std::domain_error("Arcsine undefined for this value.");
+        }
+        return std::asin(value);
+    }
+    if (functionName == "acos") {
+        if (value < -1.0 || value > 1.0) {
+            throw std::domain_error("Arccosine undefined for this value.");
+        }
+        return std::acos(value);
+    }
+    if (functionName == "atan") {
+        return std::atan(value);
+    }
+    if (functionName == "sinh") {
+        return std::sinh(value);
+    }
     throw std::invalid_argument("Unknown function: " + functionName);
 }
 
