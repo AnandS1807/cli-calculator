@@ -9,16 +9,16 @@
 #include <vector>
 
 #include "divisors.hpp"
+#include "ansi_colors.hpp"
 
 namespace {
-
 void clearInput() {
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 std::string readLine(const std::string& prompt) {
-    std::cout << prompt;
+    std::cout << BOLD << BLUE << prompt << RESET;
     std::cin >> std::ws;
     std::string line;
     std::getline(std::cin, line);
@@ -28,11 +28,11 @@ std::string readLine(const std::string& prompt) {
 int readMenuChoice(int min, int max) {
     int choice;
     while (true) {
-        std::cout << "Select option: ";
+        std::cout << BOLD << CYAN << "Select option: " << RESET;
         if (std::cin >> choice && choice >= min && choice <= max) {
             return choice;
         }
-        std::cout << "Invalid choice. Try again.\n";
+        std::cout << RED << "Invalid choice. Try again." << RESET << '\n';
         clearInput();
     }
 }
@@ -40,11 +40,11 @@ int readMenuChoice(int min, int max) {
 long long readInteger(const std::string& prompt) {
     long long value;
     while (true) {
-        std::cout << prompt;
+        std::cout << BOLD << BLUE << prompt << RESET;
         if (std::cin >> value) {
             return value;
         }
-        std::cout << "That doesn't look like an integer. ";
+        std::cout << RED << "That doesn't look like an integer." << RESET << ' ';
         clearInput();
     }
 }
@@ -52,11 +52,11 @@ long long readInteger(const std::string& prompt) {
 double readDouble(const std::string& prompt) {
     double value;
     while (true) {
-        std::cout << prompt;
+        std::cout << BOLD << BLUE << prompt << RESET;
         if (std::cin >> value) {
             return value;
         }
-        std::cout << "That doesn't look like a valid number. ";
+        std::cout << RED << "That doesn't look like a valid number." << RESET << ' ';
         clearInput();
     }
 }
@@ -218,10 +218,10 @@ double applyFunction(const std::string& functionName, double value) {
 int chooseBase(const std::string& label) {
     while (true) {
         std::cout << label << '\n';
-        std::cout << " 1) Decimal (10)\n";
-        std::cout << " 2) Binary (2)\n";
-        std::cout << " 3) Hexadecimal (16)\n";
-        std::cout << " 0) Back\n";
+        std::cout << YELLOW << " 1) " << RESET << CYAN << "Decimal (10)" << RESET << '\n';
+        std::cout << YELLOW << " 2) " << RESET << CYAN << "Binary (2)" << RESET << '\n';
+        std::cout << YELLOW << " 3) " << RESET << CYAN << "Hexadecimal (16)" << RESET << '\n';
+        std::cout << YELLOW << " 0) " << RESET << CYAN << "Back" << RESET << '\n';
 
         int choice = readMenuChoice(0, 3);
         switch (choice) {
@@ -466,16 +466,16 @@ double evaluateExpression(const std::string& expression) {
                 break;
             case Token::Type::Operator:
                 if (token.op == '!') {
-                    if (stack.empty()) {
-                        throw std::invalid_argument("Factorial operator missing operand.");
-                    }
+                                if (stack.empty()) {
+                                    throw std::invalid_argument("Factorial operator missing operand.");
+                                }
                     double value = stack.back();
                     stack.back() = factorialOf(value);
                     break;
                 }
-                if (stack.size() < 2) {
-                    throw std::invalid_argument("Invalid expression: insufficient operands.");
-                }
+                            if (stack.size() < 2) {
+                                throw std::invalid_argument("Invalid expression: insufficient operands.");
+                            }
                 {
                     double rhs = stack.back();
                     stack.pop_back();
@@ -492,13 +492,13 @@ double evaluateExpression(const std::string& expression) {
                         case '*':
                             result = lhs * rhs;
                             break;
-                        case '/':
+                            case '/':
                             if (rhs == 0.0) {
                                 throw std::runtime_error("Division by zero in expression.");
                             }
                             result = lhs / rhs;
                             break;
-                        default:
+                            default:
                             throw std::invalid_argument("Unknown operator in expression.");
                     }
                     stack.push_back(result);
@@ -528,7 +528,7 @@ double evaluateExpression(const std::string& expression) {
 bool askToContinue(const std::string& prompt) {
     std::string answer;
     while (true) {
-        std::cout << prompt;
+        std::cout << BOLD << BLUE << prompt << RESET;
         if (!(std::cin >> answer)) {
             clearInput();
             continue;
@@ -544,27 +544,27 @@ bool askToContinue(const std::string& prompt) {
         if (first == 'n') {
             return false;
         }
-        std::cout << "Please answer with 'y' or 'n'.\n";
+        std::cout << YELLOW << "Please answer with 'y' or 'n'." << RESET << '\n';
     }
 }
 
 void solveLinearEquation(double a, double b) {
     if (isApproximatelyZero(a)) {
         if (isApproximatelyZero(b)) {
-            std::cout << "Every real number is a solution.\n";
+            std::cout << CYAN << "Every real number is a solution." << RESET << '\n';
         } else {
-            std::cout << "No solution exists for this equation.\n";
+            std::cout << RED << "No solution exists for this equation." << RESET << '\n';
         }
         return;
     }
 
     double result = -b / a;
-    std::cout << "Solution: x = " << result << '\n';
+    std::cout << GREEN << "Solution: x = " << RESET << result << '\n';
 }
 
 void solveQuadraticEquation(double a, double b, double c) {
     if (isApproximatelyZero(a)) {
-        std::cout << "Coefficient 'a' is zero; falling back to a linear equation.\n";
+        std::cout << YELLOW << "Coefficient 'a' is zero; falling back to a linear equation." << RESET << '\n';
         solveLinearEquation(b, c);
         return;
     }
@@ -575,12 +575,12 @@ void solveQuadraticEquation(double a, double b, double c) {
     if (discriminant > epsilon) {
         double sqrtDisc = std::sqrt(discriminant);
         double denom = 2.0 * a;
-        std::cout << "Two real solutions:\n";
-        std::cout << " x1 = " << (-b + sqrtDisc) / denom << '\n';
-        std::cout << " x2 = " << (-b - sqrtDisc) / denom << '\n';
+        std::cout << CYAN << "Two real solutions:" << RESET << '\n';
+        std::cout << GREEN << " x1 = " << RESET << (-b + sqrtDisc) / denom << '\n';
+        std::cout << GREEN << " x2 = " << RESET << (-b - sqrtDisc) / denom << '\n';
     } else if (isApproximatelyZero(discriminant, epsilon)) {
         double root = -b / (2.0 * a);
-        std::cout << "One real solution (double root): x = " << root << '\n';
+        std::cout << GREEN << "One real solution (double root): x = " << RESET << root << '\n';
     } else {
         std::complex<double> sqrtDisc = std::sqrt(std::complex<double>(discriminant, 0.0));
         std::complex<double> denom(2.0 * a, 0.0);
@@ -590,12 +590,12 @@ void solveQuadraticEquation(double a, double b, double c) {
         auto printComplex = [](const std::complex<double>& value) {
             double realPart = value.real();
             double imagPart = value.imag();
-            std::cout << realPart;
+            std::cout << GREEN << realPart << RESET;
             if (!isApproximatelyZero(imagPart)) {
                 if (imagPart >= 0) {
-                    std::cout << " + " << imagPart << "i";
+                    std::cout << " + " << GREEN << imagPart << RESET << "i";
                 } else {
-                    std::cout << " - " << std::abs(imagPart) << "i";
+                    std::cout << " - " << GREEN << std::abs(imagPart) << RESET << "i";
                 }
             }
         };
@@ -610,10 +610,10 @@ void solveQuadraticEquation(double a, double b, double c) {
 
 void handleEquations() {
     while (true) {
-        std::cout << "\n--- Equation Solver ---\n";
-        std::cout << " 1) Linear (a * x + b = 0)\n";
-        std::cout << " 2) Quadratic (a * x^2 + b * x + c = 0)\n";
-        std::cout << " 0) Back\n";
+        std::cout << '\n' << UNDERLINE << MAGENTA << "--- Equation Solver ---" << RESET << '\n';
+        std::cout << YELLOW << " 1) " << RESET << CYAN << "Linear (a * x + b = 0)" << RESET << '\n';
+        std::cout << YELLOW << " 2) " << RESET << CYAN << "Quadratic (a * x^2 + b * x + c = 0)" << RESET << '\n';
+        std::cout << YELLOW << " 0) " << RESET << CYAN << "Back" << RESET << '\n';
 
         int choice = readMenuChoice(0, 2);
         switch (choice) {
@@ -644,7 +644,7 @@ void handleEquations() {
 
 void handleArithmetic() {
     while (true) {
-        std::cout << "\n--- Expression Evaluator ---\n";
+        std::cout << '\n' << UNDERLINE << MAGENTA << "--- Expression Evaluator ---" << RESET << '\n';
         std::string expression = readLine("Enter an expression (type 'back' to return): ");
         std::string lowered = trim(expression);
         std::transform(lowered.begin(), lowered.end(), lowered.begin(),
@@ -654,9 +654,9 @@ void handleArithmetic() {
         }
         try {
             double result = evaluateExpression(expression);
-            std::cout << "Result: " << result << '\n';
+            std::cout << GREEN << "Result: " << RESET << result << '\n';
         } catch (const std::exception& ex) {
-            std::cout << "Error: " << ex.what() << '\n';
+            std::cout << RED << "Error: " << RESET << ex.what() << '\n';
         }
 
         if (!askToContinue("Would you like to evaluate another expression? (y/n): ")) {
@@ -667,30 +667,30 @@ void handleArithmetic() {
 
 void handleConversions() {
     while (true) {
-        std::cout << "\n--- Numeral System Conversion ---\n";
-        int fromBase = chooseBase("Source base:");
+        std::cout << '\n' << UNDERLINE << BLUE << "--- Numeral System Conversion ---" << RESET << '\n';
+        int fromBase = chooseBase(BOLD + YELLOW + std::string("Source base:") + RESET);
         if (fromBase == 0) {
             return;
         }
-        int toBase = chooseBase("Target base:");
+        int toBase = chooseBase(BOLD + BLUE + std::string("Target base:") + RESET);
         if (toBase == 0) {
             return;
         }
         if (fromBase == toBase) {
-            std::cout << "Source and target base are identical; nothing to convert.\n";
-            continue;
+            std::cout << RED << "Source and target base are identical; nothing to convert." << RESET << '\n';
+            return;
         }
 
-        std::cout << "Enter the integer to convert: ";
+        std::cout << BOLD << BLUE << "Enter the integer to convert: " << RESET;
         std::string rawValue;
         std::cin >> rawValue;
 
         try {
             long long decimalValue = parseInteger(rawValue, fromBase);
             std::string converted = formatInteger(decimalValue, toBase);
-            std::cout << "Result: " << converted << '\n';
+            std::cout << GREEN << "Result: " << RESET << converted << '\n';
         } catch (const std::exception& ex) {
-            std::cout << "Error: " << ex.what() << '\n';
+            std::cout << RED << "Error: " << RESET << ex.what() << '\n';
         }
 
         if (!askToContinue("Would you like to convert another number? (y/n): ")) {
@@ -701,14 +701,14 @@ void handleConversions() {
 
 void handleDivisors() {
     while (true) {
-        std::cout << "\n--- Divisor Finder ---\n";
+        std::cout << '\n' << UNDERLINE << MAGENTA << "--- Divisor Finder ---" << RESET << '\n';
         long long value = readInteger("Enter an integer (0 allowed): ");
         if (value == 0) {
-            std::cout << "Zero has infinitely many divisors.\n";
+            std::cout << CYAN << "Zero has infinitely many divisors." << RESET << '\n';
         } else {
             try {
                 std::vector<long long> divisors = calculateDivisors(value);
-                std::cout << "Divisors: ";
+                std::cout << GREEN << "Divisors: " << RESET;
                 for (std::size_t idx = 0; idx < divisors.size(); ++idx) {
                     if (idx > 0) {
                         std::cout << ", ";
@@ -717,7 +717,7 @@ void handleDivisors() {
                 }
                 std::cout << '\n';
             } catch (const std::exception& ex) {
-                std::cout << "Error: " << ex.what() << '\n';
+                std::cout << RED << "Error: " << RESET << ex.what() << '\n';
             }
         }
 
@@ -729,17 +729,26 @@ void handleDivisors() {
 
 }  // namespace
 
-int main() {
-    std::cout << "Welcome to the CLI calculator!" << '\n';
+int main(int argc, char** argv) {
+    // Parse simple color flags: --co-color (disable colors), --no-color (disable)
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (arg == "--co-color" || arg == "--no-color") {
+            setColorsEnabled(false);
+            break;
+        }
+    }
+
+    std::cout << BOLD << BLUE << "Welcome to the CLI Calculator" << RESET << '\n';
 
     while (true) {
-        std::cout << "\n=== Main Menu ===\n";
-        std::cout << " 1) Basic operations\n";
-        std::cout << " 2) Numeral system conversion\n";
-        std::cout << " 3) Divisor finder\n";
-        std::cout << " 4) Equation solver\n";
-        std::cout << " 5) Report a bug\n";
-        std::cout << " 0) Exit\n";
+        std::cout << '\n' << UNDERLINE << RED << "=== Main Menu ===" << RESET << '\n';
+        std::cout << YELLOW << " 1) " << RESET << CYAN << "Basic operations" << RESET << '\n';
+        std::cout << YELLOW << " 2) " << RESET << CYAN << "Numeral system conversion" << RESET << '\n';
+        std::cout << YELLOW << " 3) " << RESET << CYAN << "Divisor finder" << RESET << '\n';
+        std::cout << YELLOW << " 4) " << RESET << CYAN << "Equation solver" << RESET << '\n';
+        std::cout << YELLOW << " 5) " << RESET << CYAN << "Report a bug" << RESET << '\n';
+        std::cout << YELLOW << " 0) " << RESET << CYAN << "Exit" << RESET << '\n';
 
         int choice = readMenuChoice(0, 5);
         switch (choice) {
@@ -756,12 +765,12 @@ int main() {
                 handleEquations();
                 break;
             case 5:
-                std::cout << "Opened a browser to report a bug, if don't see it, please visit:\n";
+                std::cout << CYAN << "Opened a browser to report a bug, if don't see it, please visit:" << RESET << '\n';
                 std::system("xdg-open https://github.com/Benedek553/cli-calculator/issues");
-                std::cout << "https://github.com/Benedek553/cli-calculator/issues\n";
+                std::cout << BLUE << "https://github.com/Benedek553/cli-calculator/issues" << RESET << '\n';
                 break;
             case 0:
-                std::cout << "Goodbye!\n";
+                std::cout << BOLD << GREEN << "Goodbye!" << RESET << '\n';
                 return 0;
             default:
                 break;
