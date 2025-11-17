@@ -1,0 +1,42 @@
+name: Cleanup Draft Releases
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find draft releases older than 2 days
+        id: fetch
+        run: |
+          cutoff=$(date -u -d "2 days ago" +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Lekéri az összes draft release ID-t és created_at időt
+          gh api repos/${{ github.repository }}/releases \
+            --jq '.[] | select(.draft == true) | {id: .id, created_at: .created_at}' > releases.json
+
+          # Kiszűrés
+          ids=$(jq -r --arg cutoff "$cutoff" \
+            '. | select(.created_at < $cutoff) | .id' releases.json)
+
+          echo "ids=$ids" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Delete releases older than 2 days
+        if: steps.fetch.outputs.ids != ''
+        run: |
+          for id in ${{ steps.fetch.outputs.ids }}; do
+            echo "Deleting draft release: $id"
+            gh api repos/${{ github.repository }}/releases/$id -X DELETE
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
