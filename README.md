@@ -1,5 +1,7 @@
 # cli-calculator
 
+[![Get it from the Snap Store](https://snapcraft.io/en/light/install.svg)](https://snapcraft.io/cli-calculator)
+
 Simple C++ project providing two command-line tools:
 
 - `calculator`: a full CLI calculator that
