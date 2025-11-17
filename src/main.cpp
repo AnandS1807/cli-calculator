@@ -733,7 +733,7 @@ int main(int argc, char** argv) {
     // Parse simple color flags: --co-color (disable colors), --no-color (disable)
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
-        if (arg == "--co-color" || arg == "--no-color") {
+        if (arg == "--no-color") {
             setColorsEnabled(false);
             break;
         }
