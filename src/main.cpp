@@ -212,6 +212,12 @@ double applyFunction(const std::string& functionName, double value) {
         }
         return std::log(value);
     }
+    if (functionName == "sqrt") {
+        if (value < 0.0) {
+            throw std::domain_error("Square root undefined for negative values.");
+        }
+        return std::sqrt(value);
+    }
     throw std::invalid_argument("Unknown function: " + functionName);
 }
 
@@ -334,7 +340,7 @@ std::vector<Token> tokenizeExpression(const std::string& expression) {
                 std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
                     return static_cast<char>(std::tolower(ch));
                 });
-                if (lowered != "sin" && lowered != "cos" && lowered != "log") {
+                if (lowered != "sin" && lowered != "cos" && lowered != "log" && lowered != "sqrt") {
                     throw std::invalid_argument("Unknown function: " + functionName);
                 }
                 if (sawUnarySign && sign == -1) {
@@ -698,6 +704,26 @@ void handleConversions() {
         }
     }
 }
+void handleSquareRoot() {
+    while (true) {
+        std::cout << "\n--- Square Root Calculator ---\n";
+        double value = readDouble("Enter a number to find its square root: ");
+        
+        try {
+            if (value < 0.0) {
+                throw std::domain_error("Square root undefined for negative values.");
+            }
+            double result = std::sqrt(value);
+            std::cout << "Square root of " << value << " = " << result << '\n';
+        } catch (const std::exception& ex) {
+            std::cout << "Error: " << ex.what() << '\n';
+        }
+
+        if (!askToContinue("Would you like to calculate another square root? (y/n): ")) {
+            return;
+        }
+    }
+}
 
 void handleDivisors() {
     while (true) {
@@ -738,10 +764,11 @@ int main() {
         std::cout << " 2) Numeral system conversion\n";
         std::cout << " 3) Divisor finder\n";
         std::cout << " 4) Equation solver\n";
-        std::cout << " 5) Report a bug\n";
+        std::cout << " 5) Square root calculator\n"; 
+        std::cout << " 6) Report a bug\n";
         std::cout << " 0) Exit\n";
 
-        int choice = readMenuChoice(0, 5);
+        int choice = readMenuChoice(0, 6);
         switch (choice) {
             case 1:
                 handleArithmetic();
@@ -755,7 +782,10 @@ int main() {
             case 4:
                 handleEquations();
                 break;
-            case 5:
+            case 5:                                  // ADD THIS CASE
+                handleSquareRoot();
+                break;
+            case 6:
                 std::cout << "Opened a browser to report a bug, if don't see it, please visit:\n";
                 std::system("xdg-open https://github.com/Benedek553/cli-calculator/issues");
                 std::cout << "https://github.com/Benedek553/cli-calculator/issues\n";
