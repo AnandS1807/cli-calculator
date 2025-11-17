@@ -803,7 +803,8 @@ int main(int argc, char** argv) {
         std::cout << YELLOW << " 2) " << RESET << CYAN << "Numeral system conversion" << RESET << '\n';
         std::cout << YELLOW << " 3) " << RESET << CYAN << "Divisor finder" << RESET << '\n';
         std::cout << YELLOW << " 4) " << RESET << CYAN << "Equation solver" << RESET << '\n';
-        std::cout << YELLOW << " 5) " << RESET << CYAN << "Report a bug" << RESET << '\n';
+        std::cout << YELLOW << " 5) " << RESET << CYAN << "Square root calculator" << RESET << '\n';
+        std::cout << YELLOW << " 6) " << RESET << CYAN << "Report a bug" << RESET << '\n';
         std::cout << YELLOW << " 0) " << RESET << CYAN << "Exit" << RESET << '\n';
 
         int choice = readMenuChoice(0, 6);
@@ -821,6 +822,9 @@ int main(int argc, char** argv) {
                 handleEquations();
                 break;
             case 5:
+                handleSquareRoot();
+                break;
+            case 6:
                 std::cout << CYAN << "Opened a browser to report a bug, if don't see it, please visit:" << RESET << '\n';
                 std::system("xdg-open https://github.com/Benedek553/cli-calculator/issues");
                 std::cout << BLUE << "https://github.com/Benedek553/cli-calculator/issues" << RESET << '\n';
