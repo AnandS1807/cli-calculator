@@ -3,5 +3,8 @@
         "*.txt": "plaintext",
         "*.json": "json",
         "iostream": "cpp"
+    },
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/canonical/snapcraft/main/schema/snapcraft.json": "file:///home/farsang/cli-calculator/snapcraft.yaml"
     }
 }

@@ -52,3 +52,5 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeScripts/
 Makefile
+
+*.snap

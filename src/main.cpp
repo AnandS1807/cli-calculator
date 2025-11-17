@@ -767,7 +767,6 @@ void handleDivisors() {
 }  // namespace
 
 int main(int argc, char** argv) {
-    // Parse simple color flags: --co-color (disable colors), --no-color (disable)
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
         if (arg == "--no-color") {

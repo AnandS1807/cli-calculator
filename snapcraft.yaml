@@ -1,0 +1,73 @@
+name: cli-calculator
+title: CLI Calculator
+base: core22
+version: '1.2.0'
+license: Apache-2.0
+source-code:
+  - https://github.com/Benedek553/cli-calculator
+issues:
+  - https://github.com/Benedek553/cli-calculator/issues
+summary: Simple CLI calculator
+icon: icon.png
+description: |
+  A lightweight, fast, and reliable command-line calculator designed for developers, power users, and anyone who needs precise expression evaluation directly from the terminal.
+
+  **Key Features**
+
+  * **Advanced Expression Evaluation**
+
+    * Supports `+`, `-`, `*`, `/`, `x`, `:` operators
+    * Parentheses and nested expressions
+    * Built-in functions: `sin`, `cos`, `log`
+    * Factorial operator `!`
+    * Floating‑point precision
+
+  * **Universal Number Base Conversion**
+
+    * Understands binary (`0b`), decimal, and hexadecimal (`0x`) prefixes
+    * Automatically converts between bases
+    * Sign support included
+
+  * **Equation Solver**
+
+    * Linear equations: `a * x + b = 0`
+    * Quadratic equations: `a * x^2 + b * x + c = 0`
+    * Real, double, and complex root handling
+
+  * **Utility Tools**
+
+    * Divisor calculator
+    * Error‑resistant input parser
+
+  **Why Use CLI Calculator?**
+
+  * Terminal‑native, minimalistic design
+  * No unnecessary dependencies
+  * Extremely fast build and execution
+  * Ideal for developers working in C++, Linux, containers, or minimal environments
+
+  **Usage**
+
+  `cli-calculator`
+
+  Then follow the interactive prompt.
+grade: stable
+confinement: strict
+
+apps:
+  cli-calculator:
+    command: bin/calculator
+    plugs: [home]
+
+parts:
+  cli-calculator:
+    plugin: cmake
+    source: .
+    build-packages:
+      - build-essential
+      - cmake
+      - g++
+    stage-packages:
+      - libstdc++6
+    organize:
+      usr/local/bin/calculator: bin/calculator
