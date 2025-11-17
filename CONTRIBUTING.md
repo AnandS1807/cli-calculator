@@ -12,7 +12,7 @@ Please follow the guidelines below to ensure a smooth and efficient contribution
 2. **Clone your fork** locally:
 
    ```sh
-   git clone https://github.com/Benedek553/cli-calculator
+   git clone https://github.com/<username>/cli-calculator
    ```
 3. Create a build directory and compile the project:
 
