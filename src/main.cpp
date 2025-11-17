@@ -371,7 +371,7 @@ std::vector<Token> tokenizeExpression(const std::string& expression) {
                 std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
                     return static_cast<char>(std::tolower(ch));
                 });
-                if (lowered != "sin" && lowered != "cos" && lowered != "log") {
+                if (lowered != "sin" && lowered != "cos" && lowered != "log" && lowered != "sqrt") {
                     throw std::invalid_argument("Unknown function: " + functionName);
                 }
                 if (sawUnarySign && sign == -1) {
@@ -735,6 +735,26 @@ void handleConversions() {
         }
     }
 }
+void handleSquareRoot() {
+    while (true) {
+        std::cout << "\n--- Square Root Calculator ---\n";
+        double value = readDouble("Enter a number to find its square root: ");
+        
+        try {
+            if (value < 0.0) {
+                throw std::domain_error("Square root undefined for negative values.");
+            }
+            double result = std::sqrt(value);
+            std::cout << "Square root of " << value << " = " << result << '\n';
+        } catch (const std::exception& ex) {
+            std::cout << "Error: " << ex.what() << '\n';
+        }
+
+        if (!askToContinue("Would you like to calculate another square root? (y/n): ")) {
+            return;
+        }
+    }
+}
 
 void handleDivisors() {
     while (true) {
@@ -787,7 +807,7 @@ int main(int argc, char** argv) {
         std::cout << YELLOW << " 5) " << RESET << CYAN << "Report a bug" << RESET << '\n';
         std::cout << YELLOW << " 0) " << RESET << CYAN << "Exit" << RESET << '\n';
 
-        int choice = readMenuChoice(0, 5);
+        int choice = readMenuChoice(0, 6);
         switch (choice) {
             case 1:
                 handleArithmetic();
