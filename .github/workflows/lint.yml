@@ -1,5 +1,9 @@
 name: Lint
 on: pull_request
+permissions:
+  contents: read
+  statuses: write
+
 jobs: 
   lint:
     runs-on: ubuntu-latest
@@ -10,5 +14,8 @@ jobs:
           fetch-depth: 0
           
       - uses: super-linter/super-linter@v7.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       
   
