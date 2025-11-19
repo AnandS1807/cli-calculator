@@ -737,7 +737,7 @@ void handleConversions() {
 }
 void handleSquareRoot() {
     while (true) {
-        std::cout << "\n--- Square Root Calculator ---\n";
+        std::cout << UNDERLINE << MAGENTA << "\n--- Square Root Calculator ---\n" << RESET;
         double value = readDouble("Enter a number to find its square root: ");
         
         try {
@@ -761,7 +761,7 @@ void handleDivisors() {
         std::cout << '\n' << UNDERLINE << MAGENTA << "--- Divisor Finder ---" << RESET << '\n';
         long long value = readInteger("Enter an integer (0 allowed): ");
         if (value == 0) {
-            std::cout << CYAN << "Zero has infinitely many divisors." << RESET << '\n';
+            std::cout << RED << "Zero has infinitely many divisors." << RESET << '\n';
         } else {
             try {
                 std::vector<long long> divisors = calculateDivisors(value);
@@ -789,11 +789,38 @@ void handleDivisors() {
 int main(int argc, char** argv) {
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
-        if (arg == "--no-color") {
+        if (arg == "--no-color" || "-nc") {
             setColorsEnabled(false);
             break;
         }
     }
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (arg == "--eval" || "-e") {
+            try {
+                std::string expression(argv[i+1]);
+                double result = evaluateExpression(expression);
+                std::cout << GREEN << "Result: " << RESET << result;
+                std::cout << '\n';
+                return 0;
+            } catch (const std::exception& ex) {
+                std::cout << RED << "Error: " << RESET << ex.what() << '\n';
+                return 1;
+            }
+        }
+    }
+    for (int i= 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (arg == "--square-root" || "-sqrt") {
+            std::string number(argv[i+1]);
+            double a = std::stod(number);
+            double result = sqrt(a);
+            std::cout << GREEN << "Result: " << RESET << result << '\n';
+            return 0;
+        }
+    }
+
 
     std::cout << BOLD << BLUE << "Welcome to the CLI Calculator" << RESET << '\n';
 
