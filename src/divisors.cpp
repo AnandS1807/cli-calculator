@@ -6,10 +6,10 @@
 #include <vector>
 
 int main(int argc, char** argv) {
-    // allow disabling colors with --co-color or --no-color
+    // allow disabling colors with --no-color or -nc
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
-        if (arg == "--co-color" || arg == "--no-color") {
+        if (arg == "--no-color" || arg == "-nc") {
             setColorsEnabled(false);
             break;
         }

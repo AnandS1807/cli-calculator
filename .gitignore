@@ -54,3 +54,7 @@ CMakeScripts/
 Makefile
 
 *.snap
+*/.patch
+*.patch
+cmake
+Testing/*

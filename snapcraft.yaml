@@ -1,7 +1,7 @@
 name: cli-calculator
 title: CLI Calculator
 base: core22
-version: '1.3.0'
+version: '1.3.2'
 license: Apache-2.0
 source-code:
   - https://github.com/Benedek553/cli-calculator
@@ -45,6 +45,7 @@ description: |
   * No unnecessary dependencies
   * Extremely fast build and execution
   * Ideal for developers working in C++, Linux, containers, or minimal environments
+  * Supports scripting and automation
 
   **Usage**
 

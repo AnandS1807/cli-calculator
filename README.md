@@ -79,6 +79,16 @@ cmake --build build --config Release
 | Equation solver          | Solves linear (`a * x + b = 0`) and quadratic (`a * x^2 + b * x + c = 0`) equations, including complex roots. |
 | Divisor search           | Produces a sorted list of positive divisors for any integer (except 0). |
 
+## CLI flags
+
+- `--no-color` / `-nc`: disable ANSI colors in all outputs.
+- `--eval <expression>` / `-e <expression>`: evaluate and print the result, then exit.
+- `--square-root <value>` / `-sqrt <value>`: compute a single square root (fails for negative inputs).
+
+## Supported functions in expressions
+
+`sin`, `cos`, `tan`, `cot`, `asin`, `acos`, `atan`, `log`, `exp`, `sqrt`, `sinh`, and factorial `!`. Expressions also accept `x` and `:` as multiplication and division.
+
 ## Helpful tips
 
 - In the calculator menu, type `back` to return to the algebraic input mode.
