@@ -828,54 +828,83 @@ int main(int argc, char** argv) {
         }
     }
 
-    for (int i=1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
-        if (arg == "--square-root" || arg == "-sqrt") {
-            if (i + 1 >= argc) {
-                std::cerr << RED << "Error: missing value after " << arg << RESET << '\n';
-                return 1;
-            }
-            try {
-                std::string number(argv[i+1]);
-                double a = std::stod(number);
-                if (a < 0.0) {
-                    std::cerr << RED << "Error: square root undefined for negative values." << RESET << '\n';
+        int opt = 0;
+        if (arg == "--eval" || arg == "-e") {
+            opt = 1;
+        } else if (arg == "--square-root" || arg == "-sqrt") {
+            opt = 2;
+        } else if (arg == "--divisors" || arg == "-d") {
+            opt = 3;
+        } else {
+            continue;
+        }
+
+        switch (opt) {
+            case 1: {
+                if (i + 1 >= argc) {
+                    std::cerr << RED << "Error: missing expression after " << arg << RESET << '\n';
                     return 1;
                 }
-                double result = std::sqrt(a);
-                std::cout << GREEN << "Result: " << RESET << result << '\n';
-                return 0;
-            } catch (const std::exception& ex) {
-                std::cerr << RED << "Error: unable to parse number: " << ex.what() << RESET << '\n';
-                return 1;
-            }
-        }
-    }
-
-    for (int i=1; i < argc; ++i) {
-        std::string arg(argv[i]);
-        if (arg == "--divisors" || arg == "-d") {
-            if (i + 1 >= argc) {
-                std::cerr << RED << "Error: Missing value after" << arg << RESET << '\n';
-                return 1;
-            }
-            try {
-                std::string input(argv[i+1]);
-                long long n = std::stoll(input);
-                std::vector<long long> result = calculateDivisors(n);
-                std::cout << GREEN << "Divisors: " << RESET;
-                for (std::size_t idx = 0; idx < result.size(); ++idx) {
-                    if (idx > 0) {
-                        std::cout << ", ";
-                    }
-                    std::cout << result[idx];
+                try {
+                    std::string expression(argv[i+1]);
+                    double result = evaluateExpression(expression);
+                    std::cout << GREEN << "Result: " << RESET << result << '\n';
+                    return 0;
+                } catch (const std::exception& ex) {
+                    std::cout << RED << "Error: " << RESET << ex.what() << '\n';
+                    return 1;
                 }
-                std::cout << '\n';
-                return 0;
-            } catch (const std::exception& ex) {
-                std::cerr << RED << "Error: unable to parse number" << RESET << '\n';
-                return 1;
+                break;
             }
+            case 2: {
+                if (i + 1 >= argc) {
+                    std::cerr << RED << "Error: missing value after " << arg << RESET << '\n';
+                    return 1;
+                }
+                try {
+                    std::string number(argv[i+1]);
+                    double a = std::stod(number);
+                    if (a < 0.0) {
+                        std::cerr << RED << "Error: square root undefined for negative values." << RESET << '\n';
+                        return 1;
+                    }
+                    double result = std::sqrt(a);
+                    std::cout << GREEN << "Result: " << RESET << result << '\n';
+                    return 0;
+                } catch (const std::exception& ex) {
+                    std::cerr << RED << "Error: unable to parse number: " << ex.what() << RESET << '\n';
+                    return 1;
+                }
+                break;
+            }
+            case 3: {
+                if (i + 1 >= argc) {
+                    std::cerr << RED << "Error: Missing value after" << arg << RESET << '\n';
+                    return 1;
+                }
+                try {
+                    std::string input(argv[i+1]);
+                    long long n = std::stoll(input);
+                    std::vector<long long> result = calculateDivisors(n);
+                    std::cout << GREEN << "Divisors: " << RESET;
+                    for (std::size_t idx = 0; idx < result.size(); ++idx) {
+                        if (idx > 0) {
+                            std::cout << ", ";
+                        }
+                        std::cout << result[idx];
+                    }
+                    std::cout << '\n';
+                    return 0;
+                } catch (const std::exception& ex) {
+                    std::cerr << RED << "Error: unable to parse number" << RESET << '\n';
+                    return 1;
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
 
