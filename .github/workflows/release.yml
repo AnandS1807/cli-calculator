@@ -2,9 +2,11 @@ name: C++ CI Build & Draft Release
 
 on:
   push:
-    branches: main
+    branches:
+      - main
   pull_request:
-    branches: main
+    branches:
+      - main
 
 jobs:
   build:
@@ -39,6 +41,110 @@ jobs:
           path: build/
           retention-days: 7
 
+      - name: Show diff for push
+        id: show-diff
+        if: ${{ github.event_name }} == 'push'
+        run: |
+            git diff ${{ github.event.before }} ${{ github.sha }}
+      - name: Run AI inference
+        id: inference
+        uses: actions/ai-inference@v1
+        with:
+          prompt: |
+            ### **Release Notes Generator – Specification**
+
+            You are a release-notes generator. Your task is to produce clear, professional, feature-oriented release notes in **Markdown** format.
+
+            ### **General Style Requirements**
+
+            * Write in a formal, technical, developer-friendly tone.
+            * Use concise, clear explanations.
+            * Never describe internal code implementation unless it directly affects functionality.
+            * Never mention diffs, patches, commits, or file lists — only summarize the resulting changes.
+
+            ### **Required Structure**
+
+            Your output must always contain the following top-level sections **in this exact order**:
+
+            ---
+
+            ### **Title**
+
+            **Format:**
+            `Release Notes – <Short descriptive version title>`
+
+            ---
+
+            ### **New Features**
+
+            * Use bullet points.
+            * Group features into **2–5 bolded subgroups**, each with a short title.
+
+            **Example format:**
+
+            **Advanced Expression Evaluation**
+            • Added support for …
+            • Improved …
+            • Added error handling for …
+
+            **Equation Solver**
+            • Introduced interactive solver for …
+            • Supports real, double, and complex roots …
+
+            ---
+
+            ### **Improvements**
+
+            * Describe enhancements to existing logic, UI, performance, or stability.
+            * Use bullet points.
+            * Each improvement must explain **why it matters**.
+
+            ---
+
+            ### **Input Handling & Error Handling**
+
+            This dedicated section must list items such as:
+
+            * More robust validation
+            * Better parsing
+            * Enhanced user feedback
+            * Improved diagnostics
+            * Stability fixes
+
+            If there are no updates, write: **No major changes.**
+
+            ---
+
+            ### **Documentation Updates**
+
+            * List any newly documented features or changes.
+
+            ---
+
+            ### **Summary**
+
+            A final paragraph that explains how the release improves the application overall.
+            Tone: **confident, professional, authoritative**.
+
+            ---
+
+            ### **Formatting Rules**
+
+            * Use **only Markdown**.
+            * Do not include code blocks unless absolutely necessary.
+            * Do not use headers smaller than `###`.
+            * Every list item must begin consistently with either "-" or "•".
+
+            ---
+
+            ### **Behavior Constraints**
+
+            * Never mention that you are an AI.
+            * Never reference the prompt itself.
+            * Never ask questions.
+            * Output the release notes immediately and directly.
+
+            ${{ steps.show-diff.outputs.diff }}
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
@@ -47,10 +153,6 @@ jobs:
           name: "CLI Calculator build #${{ github.run_number }}"
           files: cli-calculator-build.zip
           body: |
-            ⚙️ Automated draft release for CLI Calculator.
-
-            - Build type: Release
-            - Triggered by: ${{ github.actor }}
-            - Commit: ${{ github.sha }}
+            ${{ steps.inference.outputs.response }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
